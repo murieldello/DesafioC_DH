@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Desafío - Google Blockly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="icon" type="image/x-icon" href="logoDHej3.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script src="https://unpkg.com/blockly@8.0.0/blockly_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@8.0.0/blocks_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@8.0.0/javascript_compressed.js"></script>
+  <script src="https://unpkg.com/blockly@8.0.0/msg/js/es.js"></script>
+
+  <style>
+
+    * {
+      margin: 0; 
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #18181B;
+      color: #AEAEAE;
+    }
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh; 
+      background: url("fondo.png") no-repeat center center; 
+      background-size: cover;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      overflow: hidden;
+    }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-content {
+  opacity: 0; 
+  animation: fadeInUp 1.5s ease-out forwards;
+}
+
+.hero-content h1 {
+  animation-delay: 1s;
+}
+
+.hero-content p {
+  animation-delay: 1.3s;
+}
+
+    .hero-overlay {
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1; 
+      text-align: center;
+      margin: 0 20px; 
+      padding: 20px;
+    }
+    .icono-hero {
+      width: 130px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    .digitalico {
+      width: 35rem;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .hero-content h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+      line-height: 1.1;
+    }
+    .hero-content h1 br + span {
+      font-size: 2rem; 
+      display: block;
+      margin-top: 10px;
+    }
+    .hero-content p {
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+
+    .scroll-down {
+      position: absolute;
+      bottom: 20px;    
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 2;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+      40% { transform: translate(-50%, 8px); }
+      60% { transform: translate(-50%, 4px); }
+    }
+
+
+    #contenidoPrincipal {
+      padding: 20px 20px;
+      text-align: center;
+    }
+    h2 {
+      margin: 5px 0 10px 0;
+      text-align: center;
+      font-size: 2rem;
+      color: #fff;
+    }
+    #blocklyDiv {
+      width: 90%;
+      height: 21rem;
+      margin: 0 auto 0px;
+      border: 1px solid #ccc;
+    }
+
+    #mensajeIA {
+      display: none;         
+      margin: 10px auto;
+      font-size: 1rem;
+      color: #FBC02D;        
+      text-align: center;
+      max-width: 80%;
+      font-weight: 600;
+    }
+
+    .codigo-container {
+      width: 90%;
+      margin: 20px auto;
+      display: flex;
+      align-items: center; 
+      gap: 15px; 
+      color: #fff;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .codigo-label {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-top: 5px; 
+      white-space: nowrap;
+    }
+    #generatedCode {
+      background: #f9f9f9;
+      color: #333;
+      padding: 10px;
+      border: 1px solid #ccc;
+      white-space: pre;
+      overflow: auto;
+      box-sizing: border-box;
+      width: 50%;
+      max-height: 200px; 
+      margin-right: 10px; 
+    }
+    #toolbox {
+      display: none;
+    }
+    .btn-ejecutar {
+      display: inline-block;
+      margin: 0; 
+      padding: 15px 30px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #fff;  
+      color: #000;            
+      transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+    }
+    .btn-ejecutar:hover {
+      background-color: #FBC02D; 
+      color: #000;               
+      transform: scale(1.03);
+    }
+
+
+    .modal {
+      display: none; 
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4); 
+    }
+    .modal-content {
+      background-color: #fff;
+      color: #000;
+      margin: 15% auto; 
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 8px;
+      position: relative;
+      text-align: center; 
+    }
+    .modal-cerrar {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #aaa;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .modal-cerrar:hover {
+      color: #000;
+    }
+    .modal-ok {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      background-color: #FBC02D;
+      color: #000;
+      cursor: pointer;
+    }
+    .modal-ok:hover {
+      background-color: #FFA000;
+    }
+    .blocklySvg {
+      background-color: #439763;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+      .hero-content h1 br + span {
+        font-size: 1.5rem;
+      }
+      .hero-content p {
+        font-size: 1rem;
+      }
+      .digitalico {
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 15px;
+      }
+      #blocklyDiv {
+        width: 95%;
+        height: 18rem;
+      }
+      .codigo-container {
+        flex-direction: column;
+      }
+      #generatedCode {
+        width: 90%;
+        margin-right: 0;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+      .hero-content h1 br + span {
+        font-size: 1.2rem;
+      }
+      .hero-content p {
+        font-size: 0.9rem;
+      }
+      .icono-hero {
+        width: 100px;
+      }
+      #blocklyDiv {
+        height: 16rem;
+      }
+      .btn-ejecutar {
+        padding: 10px 20px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <img src="icono.png" alt="Icono" class="icono-hero">
+
+      <h1>Desafío - Google Blockly<br><span style="font-size: 1rem; font-weight: 500; margin-top: 5rem;">for</span></h1>
+
+        <img src="digital.png" alt="Icono" class="digitalico">
+      </div>
+    <div class="scroll-down" onclick="scrollToContent()">&#x2193;</div>
+  </section>
+
+  <div id="contenidoPrincipal">
+    <h2>¡Aprendemos con Google Blockly!</h2>
+    <p style="margin-top: 10px;">¡Arrastrá y uní los bloques en el pizarrón para darle vida a tus ideas!</p>
+    <p style="margin-top: 10px;">A medida que construyas tu programa con bloques, vas a ver las instrucciones que se generan abajo.</p>
+    <p style="margin-top: 10px; margin-bottom: 10px;">¡Hacé clic en “Ejecutar” y descubrí lo que hace!</p>
+
+    <div id="blocklyDiv"></div>
+
+    <p id="mensajeIA">Recordá que tu pregunta a la IA debe tener más de 10 caracteres.</p>
+
+    <div class="codigo-container">
+      <div class="codigo-label">Código generado:</div>
+      <pre id="generatedCode"></pre>
+      <button class="btn-ejecutar" onclick="ejecutarCodigo()">Ejecutar</button>
+    </div>
+
+    <xml id="toolbox">
+      <block type="text"></block>
+      <block type="math_number"></block>
+      <block type="saludar"></block>
+      <block type="preguntar"></block>
+      <block type="sumar"></block>
+      <block type="consultarIA"></block>
+    </xml>
+  </div>
+
+  <div id="miModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-cerrar" onclick="cerrarModal()">&times;</span>
+      <p id="modalText"></p>
+      <button class="modal-ok" onclick="cerrarModal()">OK</button>
+    </div>
+  </div>
+
+  <script>
+
+     function scrollToContent() {
+  document.getElementById('contenidoPrincipal').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+     function mostrarMensaje(texto) {
+
+  if (document.activeElement) {
+    document.activeElement.blur();
+  }
+  if (typeof Blockly !== 'undefined' && Blockly.hideChaff) {
+    Blockly.hideChaff();
+  }
+  document.getElementById('modalText').textContent = texto;
+  document.getElementById('miModal').style.display = 'block';
+}
+
+    function cerrarModal() {
+      document.getElementById('miModal').style.display = 'none';
+    }
+
+
+    Blockly.defineBlocksWithJsonArray([
+      {
+        "type": "saludar",
+        "message0": "saludar %1",
+        "args0": [{
+          "type": "input_value",
+          "name": "NOMBRE",
+          "check": "String"
+        }],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 62
+      },
+      {
+        "type": "preguntar",
+        "message0": "preguntar %1",
+        "args0": [{
+          "type": "field_input",
+          "name": "PREGUNTA",
+          "text": "¿Cómo te llamas?"
+        }],
+        "output": "String",
+        "colour": 62
+      },
+      {
+        "type": "sumar",
+        "message0": "sumar %1 y %2",
+        "args0": [
+          { "type": "input_value", "name": "NUM1" },
+          { "type": "input_value", "name": "NUM2" }
+        ],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 230
+      },
+      {
+        "type": "consultarIA",
+        "message0": "consultar IA %1",
+        "args0": [{ "type": "input_value", "name": "PREGUNTA", "check": "String" }],
+        "previousStatement": null,
+        "nextStatement": null,
+        "colour": 324
+      }
+    ]);
+    Blockly.Blocks['text'].init = function() {
+  this.jsonInit({
+    "message0": "\"%1\"",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "TEXT",
+        "text": ""
+      }
+    ],
+    "output": "String",
+    "colour": 324,
+    "helpUrl": "%{BKY_TEXT_HELPURL}"
+  });
+};
+
+
+    Blockly.JavaScript['saludar'] = function(block) {
+      var nombre = Blockly.JavaScript.valueToCode(block, 'NOMBRE', Blockly.JavaScript.ORDER_ATOMIC) || "''";
+      return `mostrarMensaje("¡Hola, " + ${nombre} + "!");\n`;
+    };
+
+    Blockly.JavaScript['preguntar'] = function(block) {
+      var pregunta = block.getFieldValue('PREGUNTA');
+      return [`prompt("${pregunta}")`, Blockly.JavaScript.ORDER_NONE];
+    };
+
+    Blockly.JavaScript['sumar'] = function(block) {
+      var num1 = Blockly.JavaScript.valueToCode(block, 'NUM1', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+      var num2 = Blockly.JavaScript.valueToCode(block, 'NUM2', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+      return `
+var resultado = Number(${num1}) + Number(${num2});
+mostrarMensaje("El resultado de tu suma es: " + resultado);
+`;
+    };
+
+    Blockly.JavaScript['consultarIA'] = function(block) {
+      var pregunta = Blockly.JavaScript.valueToCode(block, 'PREGUNTA', Blockly.JavaScript.ORDER_ATOMIC) || "''";
+      return `consultarTextcortex(${pregunta});\n`;
+    };
+
+
+    var workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox')
+    });
+
+ 
+    workspace.addChangeListener(() => {
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+      document.getElementById('generatedCode').textContent = code;
+      
+      let allBlocks = workspace.getAllBlocks(false);
+      let foundIA = allBlocks.some(block => block.type === 'consultarIA');
+      if (foundIA) {
+        document.getElementById('mensajeIA').style.display = 'block';
+      } else {
+        document.getElementById('mensajeIA').style.display = 'none';
+      }
+    });
+
+    function ejecutarCodigo() {
+      try {
+        var codigoJS = Blockly.JavaScript.workspaceToCode(workspace);
+        console.log("Código generado:\n", codigoJS);
+        eval(codigoJS);
+      } catch (error) {
+        console.error("Error al ejecutar el código:", error);
+        mostrarMensaje("Hubo un error al ejecutar el código. Revisá la consola para más detalles.");
+      }
+    }
+
+    function consultarTextcortex(pregunta) {
+      fetch('https://dead-bunnie-murieldello-a37e7847.koyeb.app/api/consultar-textcortex', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: pregunta })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.text) {
+          mostrarMensaje("Respuesta de la IA: " + data.text);
+        } else {
+          mostrarMensaje("Error en la respuesta: " + JSON.stringify(data));
+        }
+      })
+      .catch(error => {
+        console.error("Error al consultar a la IA:", error);
+        mostrarMensaje("Error al consultar a la IA.");
+      });
+    }
+    
+  </script>
+</body>
+</html>
+
